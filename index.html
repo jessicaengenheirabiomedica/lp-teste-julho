@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fluxogramas | Futuremed &amp; Hexamedical</title>
+<style>
+  :root{
+    --cliente:#b45309;      --cliente-bg:#fef3c7;      --cliente-bd:#f59e0b;
+    --bruna:#1d4ed8;        --bruna-bg:#dbeafe;        --bruna-bd:#2563eb;
+    --fabielle:#6d28d9;     --fabielle-bg:#ede9fe;     --fabielle-bd:#7c3aed;
+    --tecnico:#0f766e;      --tecnico-bg:#ccfbf1;      --tecnico-bd:#0d9488;
+    --comercial:#be123c;    --comercial-bg:#ffe4e6;    --comercial-bd:#e11d48;
+    --neutro:#334155;       --neutro-bg:#f1f5f9;       --neutro-bd:#64748b;
+    --inicio:#15803d;       --fim:#b91c1c;
+    --linha:#94a3b8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Roboto, Arial, sans-serif;
+    background:#f8fafc;
+    color:#1e293b;
+    padding:32px 16px 64px;
+  }
+  .page{max-width:900px;margin:0 auto;}
+  header{text-align:center;margin-bottom:8px;}
+  header h1{font-size:1.5rem;margin:0 0 4px;color:#0f172a;}
+  header p{margin:0;color:#64748b;font-size:.92rem;}
+
+  .topnav{
+    display:flex;justify-content:center;gap:12px;margin:22px 0 8px;flex-wrap:wrap;
+  }
+  .topnav a{
+    font-size:.82rem;font-weight:600;color:#1e293b;background:#fff;border:1px solid #cbd5e1;
+    border-radius:999px;padding:8px 18px;text-decoration:none;
+  }
+  .topnav a:hover{background:#eef2f7;}
+
+  .section-title{
+    text-align:center;margin:56px 0 4px;padding-top:24px;border-top:1px solid #e2e8f0;
+  }
+  .section-title:first-of-type{border-top:none;margin-top:20px;}
+  .section-title h2{font-size:1.25rem;margin:0 0 4px;color:#0f172a;}
+  .section-title p{margin:0;color:#64748b;font-size:.88rem;}
+
+  .legend{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:10px;
+    margin:20px 0 36px;padding:14px 18px;background:#fff;border:1px solid #e2e8f0;
+    border-radius:10px;
+  }
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#334155;}
+  .swatch{width:13px;height:13px;border-radius:4px;flex-shrink:0;}
+
+  .flow{display:flex;flex-direction:column;align-items:center;}
+
+  .connector{
+    width:2px;height:26px;background:var(--linha);position:relative;
+  }
+  .connector.tall{height:34px;}
+  .connector::after{
+    content:"";position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);
+    width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;
+    border-top:5px solid var(--linha);
+  }
+  .connector-label{
+    font-size:.72rem;color:#64748b;background:#f8fafc;padding:1px 6px;
+    border:1px dashed #cbd5e1;border-radius:10px;margin:2px 0;
+  }
+
+  .terminal{
+    color:#fff;font-weight:600;padding:10px 26px;border-radius:999px;font-size:.9rem;
+    box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .terminal.start{background:#fff;color:#000;border:1.5px solid #000;}
+  .terminal.end{background:var(--fim);}
+
+  .card{
+    width:100%;max-width:560px;background:#fff;border-radius:10px;
+    border:1.5px solid var(--bd);border-left:6px solid var(--bd);
+    box-shadow:0 1px 3px rgba(0,0,0,.08);padding:14px 18px;
+  }
+  .card .step-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .card .step-title{font-weight:700;font-size:.95rem;color:#0f172a;}
+  .card .step-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;background:var(--bd);color:#fff;
+    font-size:.75rem;font-weight:700;margin-right:8px;flex-shrink:0;
+  }
+  .badge{
+    font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+    padding:3px 10px;border-radius:999px;background:var(--bg);color:var(--fg);white-space:nowrap;
+  }
+  .card p{margin:2px 0;font-size:.84rem;line-height:1.45;color:#334155;}
+  .card ul{margin:4px 0 0;padding-left:18px;}
+  .card li{font-size:.84rem;line-height:1.45;color:#334155;}
+  .card .note{
+    margin-top:8px;font-size:.78rem;color:#64748b;background:#f8fafc;
+    border:1px dashed #e2e8f0;border-radius:6px;padding:6px 10px;
+  }
+
+  /* decision diamond */
+  .decision{
+    width:230px;height:230px;background:var(--neutro-bg);border:2px solid var(--neutro-bd);
+    transform:rotate(45deg);display:flex;align-items:center;justify-content:center;
+    border-radius:14px;margin:6px 0;
+  }
+  .decision-inner{
+    transform:rotate(-45deg);text-align:center;font-size:.82rem;font-weight:700;
+    color:#334155;padding:0 20px;line-height:1.35;
+  }
+
+  .branches{
+    display:flex;justify-content:center;gap:60px;width:100%;max-width:640px;margin-top:4px;
+  }
+  .branch{display:flex;flex-direction:column;align-items:center;flex:1;max-width:280px;}
+  .branch-label{
+    font-size:.72rem;font-weight:700;padding:2px 12px;border-radius:999px;color:#fff;margin-bottom:2px;
+  }
+  .branch-label.sim{background:#16a34a;}
+  .branch-label.nao{background:#dc2626;}
+  .branch-label.opt-a{background:var(--fabielle-bd);}
+  .branch-label.opt-b{background:var(--tecnico-bd);}
+  .branch-box{
+    background:#fff;border:1.5px dashed var(--neutro-bd);border-radius:8px;
+    padding:10px 14px;font-size:.8rem;color:#475569;text-align:center;line-height:1.4;width:100%;
+  }
+  .branch .connector{height:20px;}
+
+  .merge-line{
+    width:100%;max-width:520px;height:2px;background:var(--linha);position:relative;margin-top:6px;
+  }
+
+  .loopback{
+    display:flex;align-items:center;gap:10px;background:#fff7ed;border:1.5px dashed #f59e0b;
+    border-radius:10px;padding:12px 20px;max-width:520px;font-size:.85rem;color:#92400e;
+    text-decoration:none;
+  }
+  .loopback:hover{background:#ffedd5;}
+  .loopback .arrow{font-size:1.3rem;}
+
+  .extlink{
+    display:flex;align-items:center;gap:10px;background:#eff6ff;border:1.5px dashed #2563eb;
+    border-radius:10px;padding:12px 20px;max-width:400px;font-size:.82rem;color:#1d4ed8;
+    text-decoration:none;text-align:center;
+  }
+  .extlink:hover{background:#dbeafe;}
+  .extlink .arrow{font-size:1.1rem;}
+
+  footer{
+    text-align:center;margin-top:40px;font-size:.75rem;color:#94a3b8;
+  }
+
+  @media print{
+    body{background:#fff;}
+    .card, .branch-box{box-shadow:none;}
+    .topnav{display:none;}
+    .section-title{break-before:page;}
+    .section-title:first-of-type{break-before:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Fluxogramas de Processo</h1>
+  <p>Futuremed &amp; Hexamedical — Garantia da Qualidade</p>
+</header>
+
+<div class="topnav">
+  <a href="#fluxo-os">1 · Abertura de O.S.</a>
+  <a href="#fluxo-venda">2 · Venda de Equipamentos</a>
+</div>
+
+<!-- ======================================================= -->
+<!-- FLUXO 1 — ABERTURA DE O.S.                               -->
+<!-- ======================================================= -->
+<div id="fluxo-os">
+
+<div class="section-title">
+  <h2>Fluxo de Atendimento / Abertura de O.S.</h2>
+  <p>Processo unificado de atendimento técnico</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="swatch" style="background:var(--cliente-bd)"></span>Cliente</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--bruna-bd)"></span>Bruna</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--fabielle-bd)"></span>Fabielle</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--tecnico-bd)"></span>Técnico</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--comercial-bd)"></span>Comercial Futuremed</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--neutro-bd)"></span>Decisão</div>
+</div>
+
+<div class="flow">
+
+  <div class="terminal start">INÍCIO</div>
+  <div class="connector"></div>
+
+  <!-- 1 -->
+  <div class="card" style="--bd:var(--cliente-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--cliente-bd)">1</span>Abertura do chamado</span>
+      <span class="badge" style="--bg:var(--cliente-bg);--fg:var(--cliente)">Cliente</span>
+    </div>
+    <p>Cliente já cadastrado abre chamado via WhatsApp ou ligação (telefone único Hexamedical: (11) 4339-9051).</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 2 -->
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">2</span>Registro do chamado / Verificação de garantia</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Chamado é registrado e inserido no Teams (chat).</p>
+  </div>
+  <div class="connector"></div>
+
+  <div class="decision"><div class="decision-inner">Está em garantia?</div></div>
+
+  <div class="branches">
+    <div class="branch">
+      <span class="branch-label sim">SIM</span>
+      <div class="connector"></div>
+      <div class="branch-box">Atendimento inicia imediatamente.</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label nao">NÃO</span>
+      <div class="connector"></div>
+      <div class="branch-box">Se precisar de orçamento, retorna para o Comercial.</div>
+    </div>
+  </div>
+  <div class="connector tall"></div>
+
+  <!-- 3 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">3</span>Avaliação inicial</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <p>Gestão da área técnica avalia o chamado.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 4 -->
+  <div class="card" id="etapa4" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">4</span>Direcionamento do atendimento</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <ul>
+      <li>Futuremed: atendimento remoto/presencial</li>
+      <li>Hexamedical: atendimento remoto/presencial</li>
+    </ul>
+    <div class="note">Verificado na agenda no Airtable — define técnico, interno/terceiro, data, horário, deslocamento (aéreo, carro, ônibus etc.) e hospedagem.</div>
+  </div>
+  <div class="connector"></div>
+
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title">Agendamento e abertura da OS</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <ul>
+      <li>Abertura de OS no Effort</li>
+      <li>Preenchimento de agenda no Airtable</li>
+    </ul>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 5 -->
+  <div class="card" style="--bd:var(--tecnico-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--tecnico-bd)">5</span>Atendimento</span>
+      <span class="badge" style="--bg:var(--tecnico-bg);--fg:var(--tecnico)">Técnico</span>
+    </div>
+    <p>O técnico atende e preenche a OS no Effort.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 6 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">6</span>Análise da OS</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <p>Analisa a OS para verificar a necessidade de atendimento presencial ou peças, ou finalizar a OS em caso de resolutiva. Passa as informações pelo Teams (canal).</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 7 -->
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">7</span>Formalização do atendimento</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Envia a OS ao cliente, documenta o atendimento e informa a tratativa. Envia para faturamento caso não esteja em garantia.</p>
+  </div>
+  <div class="connector"></div>
+
+  <div class="decision"><div class="decision-inner">Precisa de orçamento (presencial e/ou peça)?</div></div>
+
+  <div class="branches">
+    <div class="branch">
+      <span class="branch-label nao">NÃO</span>
+      <div class="connector"></div>
+      <div class="branch-box">Atendimento finalizado.</div>
+      <div class="connector"></div>
+      <div class="terminal end">FIM</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label sim">SIM</span>
+      <div class="connector"></div>
+      <div class="branch-box">Formaliza por e-mail com todos os envolvidos (Futuremed e cliente) para tratativa comercial.</div>
+    </div>
+  </div>
+  <div class="connector tall"></div>
+
+  <!-- 8 -->
+  <div class="card" style="--bd:var(--comercial-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--comercial-bd)">8</span>Elaboração e envio do orçamento</span>
+      <span class="badge" style="--bg:var(--comercial-bg);--fg:var(--comercial)">Comercial Futuremed</span>
+    </div>
+    <p>Elabora e envia a proposta por e-mail a todos os envolvidos (cliente e Hexamedical), em resposta à formalização enviada por Bruna, garantindo rastreabilidade.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 9 -->
+  <div class="card" style="--bd:var(--cliente-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--cliente-bd)">9</span>Aguardo do aceite do cliente</span>
+      <span class="badge" style="--bg:var(--cliente-bg);--fg:var(--cliente)">Cliente</span>
+    </div>
+    <p>Comercial Futuremed acompanha e cobra até o aceite do cliente. Com o aceite, o atendimento é retomado por Bruna.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 10 -->
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">10</span>Continuidade do atendimento e/ou peça</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Dá continuidade à mesma OS e avisa Fabielle pelo canal do Teams.</p>
+  </div>
+  <div class="connector"></div>
+
+  <a class="loopback" href="#etapa4">
+    <span class="arrow">↩</span>
+    <span>Retorna para a <strong>Etapa 4 — Direcionamento do atendimento</strong></span>
+  </a>
+
+</div>
+
+</div>
+
+<!-- ======================================================= -->
+<!-- FLUXO 2 — VENDA DE EQUIPAMENTOS                          -->
+<!-- ======================================================= -->
+<div id="fluxo-venda">
+
+<div class="section-title">
+  <h2>Fluxo de Venda de Equipamentos / Atendimento Pós-Venda</h2>
+  <p>Instalação, garantia e manutenções</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="swatch" style="background:var(--comercial-bd)"></span>Comercial Futuremed</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--fabielle-bd)"></span>Fabielle</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--bruna-bd)"></span>Bruna</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--tecnico-bd)"></span>Técnico</div>
+  <div class="legend-item"><span class="swatch" style="background:var(--neutro-bd)"></span>Decisão</div>
+</div>
+
+<div class="flow">
+
+  <div class="terminal start">INÍCIO</div>
+  <div class="connector"></div>
+
+  <!-- 1 -->
+  <div class="card" style="--bd:var(--comercial-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--comercial-bd)">1</span>Envio das informações do equipamento vendido</span>
+      <span class="badge" style="--bg:var(--comercial-bg);--fg:var(--comercial)">Comercial Futuremed</span>
+    </div>
+    <p>Posta no canal do Teams "Futuremed – Gestão da Área Técnica" as informações padronizadas do contrato de venda (empresa, CNPJ, data de aprovação, endereço, contato, equipamento, itens inclusos/não inclusos, garantia), mencionando a Fabielle.</p>
+    <div class="note">Envia também, em comentário na postagem, o Checklist Comercial – Projetos.</div>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 2 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">2</span>Direcionamento do projeto</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+  </div>
+  <div class="connector"></div>
+
+  <div class="decision"><div class="decision-inner">Qual a complexidade do equipamento?</div></div>
+
+  <div class="branches">
+    <div class="branch">
+      <span class="branch-label opt-a">BAIXA COMPLEXIDADE</span>
+      <div class="connector"></div>
+      <div class="branch-box">Placa DR, Monitor diagnóstico. Fabielle verifica a logística de entrega e a agenda no Airtable (técnico, interno/externo, data, horário, deslocamento e hospedagem).</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label opt-b">MÉDIA COMPLEXIDADE</span>
+      <div class="connector"></div>
+      <div class="branch-box">Raios X, Mamógrafo, Densitometria Óssea etc. Fabielle aciona o responsável pelo setor de projetos (@Marcos e @Roger) e verifica logística e agenda no Airtable.</div>
+    </div>
+  </div>
+  <div class="connector tall"></div>
+
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title">Agendamento e abertura da OS</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <ul>
+      <li>Abertura de OS no Effort</li>
+      <li>Preenchimento de agenda no Airtable</li>
+    </ul>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 3 -->
+  <div class="card" style="--bd:var(--tecnico-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--tecnico-bd)">3</span>Atendimento</span>
+      <span class="badge" style="--bg:var(--tecnico-bg);--fg:var(--tecnico)">Técnico</span>
+    </div>
+    <p>O técnico atende e preenche a OS no Effort.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 4 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">4</span>Análise da OS</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <p>Analisa a OS para verificar a necessidade de atendimento presencial ou peças, ou finalizar a OS em caso de resolutiva. Passa as informações pelo Teams (canal).</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 5 -->
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">5</span>Formalização do atendimento</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Envia a OS ao cliente e aos envolvidos internos (Futuremed e Hexamedical), documenta o atendimento e informa o período de garantia, o direito a manutenções preventivas e as quantidades, já agendando as datas.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 6 -->
+  <div class="card" id="etapa6" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">6</span>Acompanhamento das datas de garantia</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Verificação mensal em planilha Excel no OneDrive (acesso de Fabielle e Bruna). Todo dia 20 de cada mês os clientes são relembrados da manutenção preventiva prevista para o mês seguinte.</p>
+  </div>
+  <div class="connector"></div>
+
+  <div class="decision"><div class="decision-inner">Tipo de manutenção?</div></div>
+
+  <div class="branches">
+    <div class="branch">
+      <span class="branch-label" style="background:#f59e0b">CORRETIVA</span>
+      <div class="connector"></div>
+      <div class="branch-box">Segue o Fluxo de Atendimento / Abertura de O.S. (seção acima).</div>
+      <div class="connector"></div>
+      <a class="extlink" href="#fluxo-os">
+        <span class="arrow">↑</span>
+        <span>Ir para o fluxo "Abertura de O.S."</span>
+      </a>
+    </div>
+    <div class="branch">
+      <span class="branch-label opt-b">PREVENTIVA</span>
+      <div class="connector"></div>
+      <div class="branch-box">Envia o padrão de aviso para o Teams (canal "Futuremed – Gestão da Área Técnica"), mencionando a Fabielle.</div>
+    </div>
+  </div>
+  <div class="connector tall"></div>
+
+  <!-- 7 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">7</span>Direcionamento do atendimento</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <ul>
+      <li>Futuremed: presencial</li>
+      <li>Hexamedical: presencial</li>
+    </ul>
+    <div class="note">Verificado na agenda no Airtable — define técnico, interno/terceiro, data, horário, deslocamento (aéreo, carro, ônibus etc.) e hospedagem.</div>
+  </div>
+  <div class="connector"></div>
+
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title">Agendamento e abertura da OS</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <ul>
+      <li>Abertura de OS no Effort</li>
+      <li>Preenchimento de agenda no Airtable</li>
+    </ul>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 8 -->
+  <div class="card" style="--bd:var(--tecnico-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--tecnico-bd)">8</span>Atendimento</span>
+      <span class="badge" style="--bg:var(--tecnico-bg);--fg:var(--tecnico)">Técnico</span>
+    </div>
+    <p>O técnico atende e preenche a OS no Effort.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 9 -->
+  <div class="card" style="--bd:var(--fabielle-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--fabielle-bd)">9</span>Análise da OS</span>
+      <span class="badge" style="--bg:var(--fabielle-bg);--fg:var(--fabielle)">Fabielle</span>
+    </div>
+    <p>Analisa a OS para verificar se está tudo certo e realiza o fechamento.</p>
+  </div>
+  <div class="connector"></div>
+
+  <!-- 10 -->
+  <div class="card" style="--bd:var(--bruna-bd)">
+    <div class="step-head">
+      <span class="step-title"><span class="step-num" style="background:var(--bruna-bd)">10</span>Formalização do atendimento</span>
+      <span class="badge" style="--bg:var(--bruna-bg);--fg:var(--bruna)">Bruna</span>
+    </div>
+    <p>Envia a OS ao cliente e documenta o atendimento.</p>
+  </div>
+  <div class="connector"></div>
+
+  <a class="loopback" href="#etapa6">
+    <span class="arrow">↩</span>
+    <span>Ciclo mensal (dia 20) — retorna para a <strong>Etapa 6 — Acompanhamento das datas de garantia</strong>, até o fim do período de garantia</span>
+  </a>
+  <div class="connector"></div>
+  <div class="terminal end">FIM DA GARANTIA</div>
+
+</div>
+
+</div>
+
+<footer>
+  Fluxogramas elaborados a partir de "FLUXO - ABERTURA DE OS.docx" e "FLUXO - VENDA DE EQUIPAMENTOS.docx" · Garantia da Qualidade — Hexamedical · Gerado em 01/07/2026
+</footer>
+
+</div>
+</body>
+</html>
